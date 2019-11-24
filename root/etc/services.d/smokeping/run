@@ -1,0 +1,12 @@
+#!/usr/bin/with-contenv bash
+
+if [ "$MODE" == "MASTER" ]; then
+	exec s6-setuidgid smokeping /usr/sbin/smokeping --config="/etc/smokeping/config" --nodaemon
+else
+	exec s6-setuidgid smokeping /usr/sbin/smokeping \
+		--master-url=$MASTER_URL \
+		--cache-dir=/tmp \
+		--shared-secret=/etc/smokeping/slave_secret \
+		--nosleep \
+		--nodaemon
+fi

@@ -1,0 +1,44 @@
+#!/usr/bin/with-contenv bash
+
+# create folders
+mkdir -p \
+	/config/apache-confs \
+	/data \
+	/run/apache2 \
+	/run/smokeping \
+	/var/cache/smokeping/images
+
+# permissions
+chown -R smokeping:smokeping \
+	/data \
+	/run/smokeping
+
+# /data needs to be writeable for smokeping and www-data
+chmod 2775 /data
+find /data -type d \! -perm 2775 -print0 | xargs --no-run-if-empty -0 chmod -c 2775
+find /data -type f \! -perm 664 -print0 | xargs --no-run-if-empty -0 chmod -c 664
+
+chown -R www-data:www-data \
+	/var/cache/smokeping/images
+
+a2enconf smokeping-extra
+a2disconf cgid
+usermod -G smokeping www-data
+
+# copy config files
+PREV_DIR=$(pwd)
+
+	cd /defaults/smoke-conf || exit
+	shopt -s globstar nullglob
+	for i in *
+ 	do
+		[[ ! -e "/config/${i}" ]] && cp -v "${i}" "/config/${i}"
+	done
+
+cd "${PREV_DIR}" || exit
+
+if [ "$MODE" == "SLAVE" ]; then
+	echo $SLAVE_SECRET > /etc/smokeping/slave_secret
+	chmod o-rwx /etc/smokeping/slave_secret
+	chown smokeping /etc/smokeping/slave_secret
+fi
