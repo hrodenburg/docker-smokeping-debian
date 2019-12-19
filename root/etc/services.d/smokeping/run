@@ -7,6 +7,6 @@ else
 		--master-url=$MASTER_URL \
 		--cache-dir=/tmp \
 		--shared-secret=/etc/smokeping/slave_secret \
-		--nosleep \
-		--nodaemon
+		--nodaemon \
+		--pid-dir=/var/run/smokeping
 fi
