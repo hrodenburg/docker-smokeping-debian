@@ -3,10 +3,5 @@
 if [ "$MODE" == "MASTER" ]; then
 	exec s6-setuidgid smokeping /usr/sbin/smokeping --config="/etc/smokeping/config" --nodaemon
 else
-	exec s6-setuidgid smokeping /usr/sbin/smokeping \
-		--master-url=$MASTER_URL \
-		--cache-dir=/tmp \
-		--shared-secret=/etc/smokeping/slave_secret \
-		--nodaemon \
-		--pid-dir=/var/run/smokeping
+	exec s6-setuidgid smokeping /usr/local/bin/smokeping-slave-wrapper.sh
 fi
